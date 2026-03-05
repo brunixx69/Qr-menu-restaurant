@@ -1,17 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { MenuItem } from '../interfaces/MenuItem';
-import { Box, Button, TextField, MenuItem as MuiMenuItem, Alert, Typography } from '@mui/material';
+import { Product } from '../types';
+import { Box, Button, TextField, MenuItem as MuiMenuItem, Alert, Typography, alpha } from '@mui/material';
 import { useMenu } from '../context/MenuContext';
 
 interface AdminFormProps {
-    itemToEdit?: MenuItem | null;
+    itemToEdit?: Product | null;
     onClose?: () => void;
 }
 
 const AdminForm: React.FC<AdminFormProps> = ({ itemToEdit, onClose }) => {
     const { addMenuItem, updateMenuItem, categories } = useMenu();
-    // Initialize with a default 'Main Course' category if none avail, or just empty
-    const [formData, setFormData] = useState<Partial<MenuItem>>({
+    const [formData, setFormData] = useState<Partial<Product>>({
         name: '',
         description: '',
         price: 0,
@@ -29,7 +28,6 @@ const AdminForm: React.FC<AdminFormProps> = ({ itemToEdit, onClose }) => {
                 name: '',
                 description: '',
                 price: 0,
-                // Default to first category if available, else empty
                 category: categories.length > 0 ? categories[0] : '',
                 imageUrl: '',
                 isAvailable: true,
@@ -48,17 +46,16 @@ const AdminForm: React.FC<AdminFormProps> = ({ itemToEdit, onClose }) => {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
-        // Basic Validation
         if (!formData.name || formData.name.length < 3) {
-            setError('Name must be at least 3 characters');
+            setError('El nombre debe tener al menos 3 caracteres');
             return;
         }
         if (formData.price === undefined || formData.price <= 0) {
-            setError('Price must be greater than 0');
+            setError('El precio debe ser mayor a 0');
             return;
         }
         if (!formData.category) {
-            setError('Category is required');
+            setError('La categoría es obligatoria');
             return;
         }
 
@@ -67,25 +64,34 @@ const AdminForm: React.FC<AdminFormProps> = ({ itemToEdit, onClose }) => {
         } else {
             addMenuItem({
                 ...formData,
-                id: Date.now().toString(), // Simple ID generation
+                id: Date.now().toString(),
                 isAvailable: true,
-            } as MenuItem);
+            } as Product);
         }
 
-        // Reset form
-        setFormData({ name: '', description: '', price: 0, category: categories[0] || '', imageUrl: '', isAvailable: true });
         setError('');
         if (onClose) onClose();
     };
 
     return (
-        <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2, p: 3, bgcolor: 'background.paper', borderRadius: 2 }}>
-            <Typography variant="h6">{itemToEdit ? 'Edit Dish' : 'Add New Dish'}</Typography>
+        <Box
+            component="form"
+            onSubmit={handleSubmit}
+            sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 3,
+                p: 2,
+            }}
+        >
+            <Typography variant="h5" fontWeight={800} color="primary">
+                {itemToEdit ? 'EDITAR PLATO' : 'NUEVO PLATO'}
+            </Typography>
 
-            {error && <Alert severity="error">{error}</Alert>}
+            {error && <Alert severity="error" variant="filled">{error}</Alert>}
 
             <TextField
-                label="Dish Name"
+                label="Nombre del Plato"
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
@@ -94,18 +100,18 @@ const AdminForm: React.FC<AdminFormProps> = ({ itemToEdit, onClose }) => {
             />
 
             <TextField
-                label="Description"
+                label="Descripción"
                 name="description"
                 value={formData.description}
                 onChange={handleChange}
                 multiline
-                rows={2}
+                rows={3}
                 fullWidth
             />
 
             <Box sx={{ display: 'flex', gap: 2 }}>
                 <TextField
-                    label="Price ($)"
+                    label="Precio ($)"
                     name="price"
                     type="number"
                     value={formData.price}
@@ -117,7 +123,7 @@ const AdminForm: React.FC<AdminFormProps> = ({ itemToEdit, onClose }) => {
 
                 <TextField
                     select
-                    label="Category"
+                    label="Categoría"
                     name="category"
                     value={formData.category}
                     onChange={handleChange}
@@ -127,23 +133,26 @@ const AdminForm: React.FC<AdminFormProps> = ({ itemToEdit, onClose }) => {
                     {categories.map((cat) => (
                         <MuiMenuItem key={cat} value={cat}>{cat}</MuiMenuItem>
                     ))}
-                    <MuiMenuItem value="New">+ Add New Category (Simulated)</MuiMenuItem>
                 </TextField>
             </Box>
 
             <TextField
-                label="Image URL"
+                label="URL de Imagen"
                 name="imageUrl"
                 value={formData.imageUrl}
                 onChange={handleChange}
                 fullWidth
-                placeholder="https://example.com/image.jpg"
+                placeholder="https://images.unsplash.com/..."
             />
 
-            <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end', mt: 1 }}>
-                {onClose && <Button onClick={onClose} color="inherit">Cancel</Button>}
+            <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end', mt: 2 }}>
+                {onClose && (
+                    <Button onClick={onClose} variant="outlined" color="secondary">
+                        Cancelar
+                    </Button>
+                )}
                 <Button type="submit" variant="contained" color="primary">
-                    {itemToEdit ? 'Update Dish' : 'Add Dish'}
+                    {itemToEdit ? 'Guardar Cambios' : 'Crear Plato'}
                 </Button>
             </Box>
         </Box>
