@@ -1,7 +1,10 @@
 import React, { useRef } from 'react';
 import { QRCodeCanvas } from 'qrcode.react';
-import { Box, Button, TextField, Typography, Paper } from '@mui/material';
-import { Download, Link as LinkIcon } from 'lucide-react';
+import { Box, Button, TextField, Typography, Paper, alpha } from '@mui/material';
+import {
+    FileDownload as DownloadIcon,
+    Link as LinkIcon
+} from '@mui/icons-material';
 
 interface QRGeneratorProps {
     defaultUrl?: string;
@@ -14,7 +17,6 @@ const QRGenerator: React.FC<QRGeneratorProps> = ({ defaultUrl = '' }) => {
     const handleDownloadQR = () => {
         if (!qrRef.current) return;
 
-        // Find the canvas element inside the ref
         const canvas = qrRef.current.querySelector('canvas');
         if (canvas) {
             const pngUrl = canvas.toDataURL('image/png');
@@ -28,56 +30,57 @@ const QRGenerator: React.FC<QRGeneratorProps> = ({ defaultUrl = '' }) => {
     };
 
     return (
-        <Paper elevation={3} sx={{ p: 4, maxWidth: 400, mx: 'auto', textAlign: 'center' }}>
-            <Typography variant="h5" gutterBottom fontWeight="bold">
-                QR Code Generator
+        <Paper
+            sx={{
+                p: 4,
+                textAlign: 'center',
+                background: 'transparent',
+                boxShadow: 'none'
+            }}
+        >
+            <Typography variant="h5" gutterBottom fontWeight={900} color="primary">
+                GENERADOR QR
             </Typography>
-            <Typography variant="body2" color="text.secondary" mb={3}>
-                Enter the URL of your deployed menu to generate a QR code.
+            <Typography variant="body2" color="text.secondary" mb={4}>
+                Escanea o descarga el código para acceder al menú desde cualquier dispositivo.
             </Typography>
 
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                <LinkIcon size={20} style={{ marginRight: 8, color: '#64748b' }} />
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 4, gap: 1 }}>
+                <LinkIcon color="primary" />
                 <TextField
                     fullWidth
                     variant="outlined"
-                    label="Menu URL"
+                    label="URL del Menú"
                     size="small"
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
-                    placeholder="https://your-menu-url.com"
+                    placeholder="https://tu-menu.vercel.app"
                 />
             </Box>
 
             <Box
                 ref={qrRef}
                 sx={{
-                    mb: 3,
-                    p: 2,
+                    mb: 4,
+                    p: 3,
                     bgcolor: 'white',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: 2,
-                    display: 'inline-block'
+                    borderRadius: 4,
+                    display: 'inline-block',
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
+                    border: '4px solid',
+                    borderColor: alpha('#D4AF37', 0.2)
                 }}
             >
                 {url ? (
                     <QRCodeCanvas
                         value={url}
-                        size={200}
+                        size={220}
                         level={"H"}
                         includeMargin={true}
-                        imageSettings={{
-                            src: "", // You can add a logo here if needed
-                            x: undefined,
-                            y: undefined,
-                            height: 24,
-                            width: 24,
-                            excavate: true,
-                        }}
                     />
                 ) : (
-                    <Box sx={{ width: 200, height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#f1f5f9' }}>
-                        <Typography variant="caption" color="text.secondary">Enter URL to generate</Typography>
+                    <Box sx={{ width: 220, height: 220, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#f1f5f9' }}>
+                        <Typography variant="caption" color="text.secondary">Ingresa una URL</Typography>
                     </Box>
                 )}
             </Box>
@@ -85,12 +88,17 @@ const QRGenerator: React.FC<QRGeneratorProps> = ({ defaultUrl = '' }) => {
             <Button
                 variant="contained"
                 color="primary"
-                startIcon={<Download size={18} />}
+                startIcon={<DownloadIcon />}
                 onClick={handleDownloadQR}
                 disabled={!url}
                 fullWidth
+                sx={{
+                    py: 1.5,
+                    fontWeight: 800,
+                    borderRadius: 3
+                }}
             >
-                Download QR Code
+                DESCARGAR QR
             </Button>
         </Paper>
     );
