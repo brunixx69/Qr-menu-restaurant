@@ -1,116 +1,106 @@
 import { MenuItem } from '../interfaces/MenuItem';
 
-export const mockMenu: MenuItem[] = [
-    // Starters
+export const mockMenu: any[] = [
+    // Entradas
     {
         id: '1',
-        name: 'Bruschetta Classico',
-        description: 'Grilled bread rubbed with garlic and topped with olive oil and salt.',
+        name: 'Bruschetta Clásica',
+        description: 'Pan tostado frotado con ajo y cubierto con aceite de oliva, sal y tomates frescos.',
         price: 8.50,
-        category: 'Starters',
-        imageUrl: 'https://images.unsplash.com/photo-1572695157363-bc31c5d5316e?auto=format&fit=crop&w=500&q=60',
+        category: 'Entradas',
+        imageUrl: 'https://images.unsplash.com/photo-1572695157363-bc31c5d5316e?q=80&w=1000&auto=format&fit=crop',
         isAvailable: true,
-        tags: ['vegetarian'],
-        allergens: ['gluten']
+        tags: ['VEGETARIANO'],
     },
     {
         id: '2',
-        name: 'Crispy Calamari',
-        description: 'Fried squid rings served with lemon wedges and tartar sauce.',
+        name: 'Calamares Crujientes',
+        description: 'Anillos de calamar fritos servidos con rodajas de limón y salsa tártara.',
         price: 11.00,
-        category: 'Starters',
-        imageUrl: 'https://images.unsplash.com/photo-1604909052743-94e838986d24?auto=format&fit=crop&w=500&q=60',
+        category: 'Entradas',
+        imageUrl: 'https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?q=80&w=1000&auto=format&fit=crop',
         isAvailable: true,
-        allergens: ['seafood', 'gluten']
     },
 
-    // Main Courses
+    // Platos Principales
     {
         id: '3',
-        name: 'Grilled Salmon',
-        description: 'Fresh Atlantic salmon fillet grilled to perfection, served with asparagus.',
+        name: 'Salmón a la Parrilla',
+        description: 'Filete de salmón fresco a la parrilla servido con espárragos tiernos.',
         price: 22.00,
-        category: 'Main Course',
-        imageUrl: 'https://images.unsplash.com/photo-1467003909585-2f8a7270028d?auto=format&fit=crop&w=500&q=60',
+        category: 'Plato Principal',
+        imageUrl: 'https://images.unsplash.com/photo-1467003909585-2f8a7270028d?q=80&w=1000&auto=format&fit=crop',
         isAvailable: true,
-        tags: ['healthy', 'gluten-free'],
-        allergens: ['fish']
+        tags: ['SALUDABLE', 'SIN GLUTEN'],
     },
     {
         id: '4',
-        name: 'Ribeye Steak',
-        description: '10oz premium ribeye steak cooked to your liking.',
+        name: 'Ojo de Bife Premium',
+        description: 'Bife de bife de 300g cocinado a su gusto, servido con papas rústicas.',
         price: 28.50,
-        category: 'Main Course',
-        imageUrl: 'https://images.unsplash.com/photo-1600891964092-4316c288032e?auto=format&fit=crop&w=500&q=60',
+        category: 'Plato Principal',
+        imageUrl: 'https://images.unsplash.com/photo-1546241072-48010ad2862c?q=80&w=1000&auto=format&fit=crop',
         isAvailable: true,
-        allergens: []
     },
     {
         id: '5',
-        name: 'Truffle Mushroom Pasta',
-        description: 'Creamy fettuccine with wild mushrooms and truffle oil.',
+        name: 'Pasta de Hongos y Trufa',
+        description: 'Fettuccine cremoso con hongos silvestres y aceite de trufa blanca.',
         price: 18.00,
-        category: 'Main Course',
-        imageUrl: 'https://images.unsplash.com/photo-1626844131082-256783844137?auto=format&fit=crop&w=500&q=60',
+        category: 'Plato Principal',
+        imageUrl: 'https://images.unsplash.com/photo-1473093226795-af9932fe5856?q=80&w=1000&auto=format&fit=crop',
         isAvailable: true,
-        tags: ['vegetarian'],
-        allergens: ['gluten', 'dairy']
+        tags: ['VEGETARIANO'],
     },
     {
         id: '6',
-        name: 'Classic Cheeseburger',
-        description: 'Juicy beef patty with sharp cheddar, lettuce, tomato, and house sauce.',
+        name: 'Cheeseburger Clásica',
+        description: 'Medallón de carne jugosa con queso cheddar, lechuga, tomate y salsa de la casa.',
         price: 14.50,
-        category: 'Main Course',
-        imageUrl: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=500&q=60',
-        isAvailable: false, // Out of stock example
-        allergens: ['gluten', 'dairy']
+        category: 'Plato Principal',
+        imageUrl: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=1000&auto=format&fit=crop',
+        isAvailable: false,
     },
 
-    // Desserts
+    // Postres
     {
         id: '7',
-        name: 'Tiramisu',
-        description: 'Classic Italian dessert with layers of coffee-soaked ladyfingers and mascarpone.',
+        name: 'Tiramisú Artesanal',
+        description: 'Clásico postre italiano con capas de bizcocho café y crema mascarpone.',
         price: 9.00,
-        category: 'Desserts',
-        imageUrl: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?auto=format&fit=crop&w=500&q=60',
+        category: 'Postres',
+        imageUrl: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?q=80&w=1000&auto=format&fit=crop',
         isAvailable: true,
-        allergens: ['dairy', 'gluten', 'eggs']
     },
     {
         id: '8',
-        name: 'New York Cheesecake',
-        description: 'Creamy cheesecake on a graham cracker crust with strawberry topping.',
+        name: 'Cheesecake New York',
+        description: 'Cremoso pastel de queso con base de galleta y cobertura de frutos rojos.',
         price: 9.50,
-        category: 'Desserts',
-        imageUrl: 'https://images.unsplash.com/photo-1508737027454-e6454ef45afd?auto=format&fit=crop&w=500&q=60',
+        category: 'Postres',
+        imageUrl: 'https://images.unsplash.com/photo-1524350303359-868ad581ff22?q=80&w=1000&auto=format&fit=crop',
         isAvailable: true,
-        allergens: ['dairy', 'gluten']
     },
 
-    // Drinks
+    // Bebidas
     {
         id: '9',
-        name: 'Classic Mojito',
-        description: 'Refreshing cocktail with white rum, sugar, lime juice, soda water, and mint.',
+        name: 'Mojito Tradicional',
+        description: 'Refrescante cóctel con ron blanco, azúcar, lima, soda y menta fresca.',
         price: 10.00,
-        category: 'Drinks',
-        imageUrl: 'https://images.unsplash.com/photo-1551538827-9c037cb4f32a?auto=format&fit=crop&w=500&q=60',
+        category: 'Bebidas',
+        imageUrl: 'https://images.unsplash.com/photo-1551538827-9c037cb4f32a?q=80&w=1000&auto=format&fit=crop',
         isAvailable: true,
-        tags: ['alcoholic'],
-        allergens: []
+        tags: ['CON ALCOHOL'],
     },
     {
         id: '10',
-        name: 'Homemade Lemonade',
-        description: 'Freshly squeezed lemons with a touch of mint.',
+        name: 'Limonada Casera',
+        description: 'Limones frescos exprimidos con un toque de jengibre y menta.',
         price: 5.00,
-        category: 'Drinks',
-        imageUrl: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=500&q=60',
+        category: 'Bebidas',
+        imageUrl: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?q=80&w=1000&auto=format&fit=crop',
         isAvailable: true,
-        tags: ['non-alcoholic'],
-        allergens: []
+        tags: ['SIN ALCOHOL'],
     }
 ];
