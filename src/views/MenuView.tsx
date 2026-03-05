@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import {
     Box, Typography, Tabs, Tab, Grid, Container, useTheme,
-    Fab, Badge, Drawer, IconButton, Button, Divider, List, ListItem, ListItemText, ListItemSecondaryAction
+    Fab, Badge, Drawer, IconButton, Button, Divider, List, ListItem, ListItemText, ListItemSecondaryAction,
+    Snackbar, Alert
 } from '@mui/material';
 import {
     ShoppingCart as CartIcon,
@@ -12,11 +13,13 @@ import {
 } from '@mui/icons-material';
 import { useMenu } from '../context/MenuContext';
 import MenuCard from '../components/MenuCard';
+import { formatCurrency } from '../utils/urlUtils';
 
 const MenuView: React.FC = () => {
     const {
         menuItems, categories, cart, cartTotal,
-        updateQuantity, removeFromCart, generateWhatsAppLink, table
+        updateQuantity, removeFromCart, generateWhatsAppLink, table,
+        notification, hideNotification
     } = useMenu();
     const [selectedTab, setSelectedTab] = useState(0);
     const [isCartOpen, setIsCartOpen] = useState(false);
@@ -25,34 +28,40 @@ const MenuView: React.FC = () => {
     const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
         setSelectedTab(newValue);
         const category = categories[newValue];
-        const element = document.getElementById(`category-${category}`);
+        const element = document.getElementById(`category-${category.replace(/\s+/g, '-')}`);
         if (element) {
+            const headerOffset = 140;
+            const elementPosition = element.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
             window.scrollTo({
-                top: element.offsetTop - 120,
+                top: offsetPosition,
                 behavior: 'smooth'
             });
         }
     };
 
     return (
-        <Box sx={{ minHeight: '100vh', pb: 10 }}>
+        <Box sx={{ minHeight: '100vh', pb: 12 }}>
             {/* Elegant Header */}
             <Box sx={{
-                py: { xs: 6, md: 10 },
+                pt: { xs: 8, md: 12 },
+                pb: { xs: 6, md: 8 },
                 textAlign: 'center',
                 background: 'linear-gradient(to bottom, rgba(212, 175, 55, 0.15) 0%, transparent 100%)',
             }}>
                 <Container maxWidth="md">
-                    <Typography variant="h2" component="h1" gutterBottom
+                    <Typography variant="h1" gutterBottom
                         sx={{
                             color: 'primary.main',
-                            fontSize: { xs: '2.5rem', md: '4rem' },
-                            textShadow: '0 0 20px rgba(212, 175, 55, 0.3)'
+                            fontSize: { xs: '2.8rem', md: '5rem' },
+                            textShadow: '0 0 30px rgba(212, 175, 55, 0.4)',
+                            mb: 1
                         }}
                     >
-                        PREMIUM MENU
+                        GOURMET QR
                     </Typography>
-                    <Typography variant="h6" color="text.secondary" sx={{ opacity: 0.8, letterSpacing: '0.1em' }}>
+                    <Typography variant="subtitle1" color="text.secondary" sx={{ opacity: 0.6, letterSpacing: '0.3em', fontWeight: 500 }}>
                         BIENVENIDO A LA {table.toUpperCase()}
                     </Typography>
                 </Container>
@@ -63,9 +72,10 @@ const MenuView: React.FC = () => {
                 position: 'sticky',
                 top: 0,
                 zIndex: 1000,
-                bgcolor: 'rgba(10, 10, 10, 0.8)',
-                backdropFilter: 'blur(10px)',
-                borderBottom: '1px solid rgba(212, 175, 55, 0.3)',
+                bgcolor: 'rgba(10, 10, 10, 0.85)',
+                backdropFilter: 'blur(16px)',
+                borderBottom: '1px solid rgba(212, 175, 55, 0.2)',
+                py: 1
             }}>
                 <Container maxWidth="lg">
                     <Tabs
@@ -74,25 +84,34 @@ const MenuView: React.FC = () => {
                         variant="scrollable"
                         scrollButtons="auto"
                         sx={{
-                            '& .MuiTabs-indicator': { backgroundColor: 'primary.main' },
-                            '& .MuiTab-root': { color: 'text.secondary', '&.Mui-selected': { color: 'primary.main' } }
+                            '& .MuiTabs-indicator': { height: 3, borderRadius: '3px 3px 0 0' },
+                            '& .MuiTab-root': {
+                                fontSize: '0.9rem',
+                                fontWeight: 700,
+                                minWidth: 100,
+                                opacity: 0.7,
+                                '&.Mui-selected': { opacity: 1 }
+                            }
                         }}
                     >
                         {categories.map((category) => (
-                            <Tab key={category} label={category} />
+                            <Tab key={category} label={category.toUpperCase()} />
                         ))}
                     </Tabs>
                 </Container>
             </Box>
 
             {/* Menu Items Grid */}
-            <Container maxWidth="lg" sx={{ mt: 6 }}>
+            <Container maxWidth="lg" sx={{ mt: 8 }}>
                 {categories.map((category) => (
-                    <Box key={category} id={`category-${category}`} sx={{ mb: 8 }}>
-                        <Typography variant="h4" sx={{ mb: 4, color: 'primary.main', fontWeight: 800 }}>
-                            {category}
-                        </Typography>
-                        <Grid container spacing={3}>
+                    <Box key={category} id={`category-${category.replace(/\s+/g, '-')}`} sx={{ mb: 12 }}>
+                        <Box display="flex" alignItems="center" gap={2} mb={5}>
+                            <Typography variant="h3" sx={{ color: 'primary.main', fontWeight: 900 }}>
+                                {category}
+                            </Typography>
+                            <Box sx={{ flexGrow: 1, height: '1px', bgcolor: 'rgba(212, 175, 55, 0.1)' }} />
+                        </Box>
+                        <Grid container spacing={4}>
                             {menuItems
                                 .filter(item => item.category === category)
                                 .map(item => (
@@ -112,15 +131,18 @@ const MenuView: React.FC = () => {
                 onClick={() => setIsCartOpen(true)}
                 sx={{
                     position: 'fixed',
-                    bottom: 24,
-                    right: 24,
-                    boxShadow: '0 0 20px rgba(0,0,0,0.5)',
-                    transition: 'transform 0.3s ease',
-                    '&:hover': { transform: 'scale(1.1)' }
+                    bottom: 32,
+                    right: 32,
+                    width: 64,
+                    height: 64
                 }}
             >
-                <Badge badgeContent={cart.reduce((a, b) => a + b.quantity, 0)} color="secondary">
-                    <CartIcon />
+                <Badge
+                    badgeContent={cart.reduce((a, b) => a + b.quantity, 0)}
+                    color="secondary"
+                    overlap="circular"
+                >
+                    <CartIcon sx={{ fontSize: 32 }} />
                 </Badge>
             </Fab>
 
@@ -130,37 +152,42 @@ const MenuView: React.FC = () => {
                 open={isCartOpen}
                 onClose={() => setIsCartOpen(false)}
                 PaperProps={{
-                    sx: { width: { xs: '100%', sm: 400 }, bgcolor: 'background.default' }
+                    sx: { width: { xs: '100%', sm: 420 }, bgcolor: '#121212' }
                 }}
             >
-                <Box sx={{ p: 3, height: '100%', display: 'flex', flexDirection: 'column' }}>
-                    <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-                        <Typography variant="h5" fontWeight={800} color="primary">TU PEDIDO</Typography>
-                        <IconButton onClick={() => setIsCartOpen(false)} color="inherit">
+                <Box sx={{ p: 4, height: '100%', display: 'flex', flexDirection: 'column' }}>
+                    <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
+                        <Typography variant="h4" fontWeight={900} color="primary">MI PEDIDO</Typography>
+                        <IconButton onClick={() => setIsCartOpen(false)} color="inherit" sx={{ bgcolor: 'rgba(255,255,255,0.05)' }}>
                             <CloseIcon />
                         </IconButton>
                     </Box>
-                    <Divider sx={{ borderColor: 'rgba(212,175,55,0.2)' }} />
 
-                    <List sx={{ flexGrow: 1, overflowY: 'auto', py: 2 }}>
+                    <Divider sx={{ borderColor: 'rgba(212,175,55,0.1)' }} />
+
+                    <List sx={{ flexGrow: 1, overflowY: 'auto', py: 3 }}>
                         {cart.length === 0 ? (
-                            <Typography align="center" sx={{ mt: 10, opacity: 0.5 }}>Tu carrito está vacío</Typography>
+                            <Box sx={{ textAlign: 'center', mt: 10, opacity: 0.4 }}>
+                                <CartIcon sx={{ fontSize: 64, mb: 2 }} />
+                                <Typography variant="h6">Tu carrito está vacío</Typography>
+                            </Box>
                         ) : (
                             cart.map(item => (
-                                <ListItem key={item.id} sx={{ mb: 2, alignItems: 'flex-start' }}>
+                                <ListItem key={item.id} sx={{ mb: 3, alignItems: 'flex-start', bgcolor: 'rgba(255,255,255,0.02)', borderRadius: 4, p: 2 }}>
                                     <ListItemText
                                         primary={item.name}
-                                        secondary={`$${(item.price * item.quantity).toFixed(2)}`}
-                                        primaryTypographyProps={{ fontWeight: 700 }}
+                                        secondary={formatCurrency(item.price * item.quantity)}
+                                        primaryTypographyProps={{ fontWeight: 800, fontSize: '1.1rem' }}
+                                        secondaryTypographyProps={{ color: 'primary.main', fontWeight: 600 }}
                                     />
-                                    <ListItemSecondaryAction sx={{ top: '30%' }}>
-                                        <Box display="flex" alignItems="center" gap={1}>
-                                            <IconButton size="small" onClick={() => updateQuantity(item.id, item.quantity - 1)} sx={{ border: '1px solid gray' }}>
-                                                <RemoveIcon fontSize="inherit" />
+                                    <ListItemSecondaryAction sx={{ top: '50%', transform: 'translateY(-50%)' }}>
+                                        <Box display="flex" alignItems="center" gap={1.5} sx={{ bgcolor: 'rgba(0,0,0,0.3)', p: 0.5, borderRadius: 10 }}>
+                                            <IconButton size="small" onClick={() => updateQuantity(item.id, item.quantity - 1)} sx={{ color: 'white' }}>
+                                                <RemoveIcon fontSize="small" />
                                             </IconButton>
-                                            <Typography fontWeight={700}>{item.quantity}</Typography>
-                                            <IconButton size="small" onClick={() => updateQuantity(item.id, item.quantity + 1)} sx={{ border: '1px solid gray' }}>
-                                                <AddIcon fontSize="inherit" />
+                                            <Typography fontWeight={900} sx={{ minWidth: 20, textAlign: 'center' }}>{item.quantity}</Typography>
+                                            <IconButton size="small" onClick={() => updateQuantity(item.id, item.quantity + 1)} sx={{ color: 'primary.main' }}>
+                                                <AddIcon fontSize="small" />
                                             </IconButton>
                                         </Box>
                                     </ListItemSecondaryAction>
@@ -170,11 +197,11 @@ const MenuView: React.FC = () => {
                     </List>
 
                     {cart.length > 0 && (
-                        <Box sx={{ pt: 2 }}>
-                            <Divider sx={{ mb: 2, borderColor: 'rgba(212,175,55,0.4)' }} />
-                            <Box display="flex" justifyContent="space-between" mb={3}>
-                                <Typography variant="h6">Total</Typography>
-                                <Typography variant="h6" fontWeight={800} color="primary">${cartTotal.toFixed(2)}</Typography>
+                        <Box sx={{ pt: 3 }}>
+                            <Divider sx={{ mb: 3, borderColor: 'rgba(212,175,55,0.2)' }} />
+                            <Box display="flex" justifyContent="space-between" mb={4}>
+                                <Typography variant="h5" fontWeight={500}>TOTAL</Typography>
+                                <Typography variant="h4" fontWeight={900} color="primary">{formatCurrency(cartTotal)}</Typography>
                             </Box>
                             <Button
                                 variant="contained"
@@ -183,14 +210,31 @@ const MenuView: React.FC = () => {
                                 startIcon={<WhatsAppIcon />}
                                 href={generateWhatsAppLink()}
                                 target="_blank"
-                                sx={{ height: 56 }}
+                                sx={{ height: 64, fontSize: '1.1rem' }}
                             >
-                                Enviar Pedido a WhatsApp
+                                CONTINUAR A WHATSAPP
                             </Button>
                         </Box>
                     )}
                 </Box>
             </Drawer>
+
+            {/* Global Notifications System */}
+            <Snackbar
+                open={notification.open}
+                autoHideDuration={4000}
+                onClose={hideNotification}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            >
+                <Alert
+                    onClose={hideNotification}
+                    severity={notification.severity}
+                    variant="filled"
+                    sx={{ width: '100%', fontWeight: 700, borderRadius: 3 }}
+                >
+                    {notification.message}
+                </Alert>
+            </Snackbar>
         </Box>
     );
 };

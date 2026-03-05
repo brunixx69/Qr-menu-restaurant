@@ -1,7 +1,13 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Product, OrderItem, OrderStatus } from '../types';
+import { Product, OrderItem } from '../types';
 import { mockMenu } from '../data/mockMenu';
-import { getTableFromURL } from '../utils/urlUtils';
+import { getTableFromURL, formatCurrency } from '../utils/urlUtils';
+
+interface NotificationState {
+    open: boolean;
+    message: string;
+    severity: 'success' | 'info' | 'warning' | 'error';
+}
 
 interface MenuContextProps {
     menuItems: Product[];
@@ -20,6 +26,10 @@ interface MenuContextProps {
     cartTotal: number;
     table: string;
     generateWhatsAppLink: () => string;
+    // Notifications
+    notification: NotificationState;
+    showNotification: (message: string, severity?: NotificationState['severity']) => void;
+    hideNotification: () => void;
 }
 
 const MenuContext = createContext<MenuContextProps | undefined>(undefined);
@@ -48,6 +58,11 @@ export const MenuProvider: React.FC<MenuProviderProps> = ({ children }) => {
     });
 
     const [table] = useState<string>(getTableFromURL());
+    const [notification, setNotification] = useState<NotificationState>({
+        open: false,
+        message: '',
+        severity: 'success'
+    });
 
     useEffect(() => {
         localStorage.setItem('menuItems', JSON.stringify(menuItems));
@@ -57,26 +72,42 @@ export const MenuProvider: React.FC<MenuProviderProps> = ({ children }) => {
         localStorage.setItem('cart', JSON.stringify(cart));
     }, [cart]);
 
+    const showNotification = (message: string, severity: NotificationState['severity'] = 'success') => {
+        setNotification({ open: true, message, severity });
+    };
+
+    const hideNotification = () => {
+        setNotification(prev => ({ ...prev, open: false }));
+    };
+
     const addMenuItem = (item: Product) => {
         setMenuItems((prev) => [...prev, item]);
+        showNotification('Plato añadido correctamente');
     };
 
     const updateMenuItem = (id: string, updatedItem: Partial<Product>) => {
         setMenuItems((prev) =>
             prev.map((item) => (item.id === id ? { ...item, ...updatedItem } : item))
         );
+        showNotification('Plato actualizado');
     };
 
     const deleteMenuItem = (id: string) => {
         setMenuItems((prev) => prev.filter((item) => item.id !== id));
+        showNotification('Plato eliminado', 'warning');
     };
 
     const toggleAvailability = (id: string) => {
-        setMenuItems((prev) =>
-            prev.map((item) =>
+        setMenuItems((prev) => {
+            const updated = prev.map((item) =>
                 item.id === id ? { ...item, isAvailable: !item.isAvailable } : item
-            )
-        );
+            );
+            const item = updated.find(i => i.id === id);
+            if (item) {
+                showNotification(`${item.name} está ahora ${item.isAvailable ? 'disponible' : 'agotado'}`, item.isAvailable ? 'success' : 'info');
+            }
+            return updated;
+        });
     };
 
     const getMenuItemsByCategory = (category: string) => {
@@ -85,8 +116,11 @@ export const MenuProvider: React.FC<MenuProviderProps> = ({ children }) => {
 
     const categories = Array.from(new Set(menuItems.map((item) => item.category)));
 
-    // Cart Logic
     const addToCart = (product: Product) => {
+        if (!product.isAvailable) {
+            showNotification('Este producto no está disponible', 'error');
+            return;
+        }
         setCart((prev) => {
             const existing = prev.find(item => item.id === product.id);
             if (existing) {
@@ -96,13 +130,19 @@ export const MenuProvider: React.FC<MenuProviderProps> = ({ children }) => {
             }
             return [...prev, { ...product, quantity: 1 }];
         });
+        showNotification(`${product.name} añadido al carrito`);
     };
 
     const removeFromCart = (productId: string) => {
+        const item = cart.find(i => i.id === productId);
         setCart((prev) => prev.filter(item => item.id !== productId));
+        if (item) showNotification(`${item.name} eliminado`, 'info');
     };
 
-    const clearCart = () => setCart([]);
+    const clearCart = () => {
+        setCart([]);
+        showNotification('Carrito vaciado');
+    };
 
     const updateQuantity = (productId: string, quantity: number) => {
         if (quantity <= 0) {
@@ -117,12 +157,12 @@ export const MenuProvider: React.FC<MenuProviderProps> = ({ children }) => {
     const cartTotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
     const generateWhatsAppLink = () => {
-        const phoneNumber = "5491112223334"; // Fake phone number for testing
+        const phoneNumber = "5491112223334";
         let message = `*Nuevo Pedido - Mesa: ${table}*\n\n`;
         cart.forEach(item => {
-            message += `• ${item.quantity}x ${item.name} ($${(item.price * item.quantity).toFixed(2)})\n`;
+            message += `• ${item.quantity}x ${item.name} (${formatCurrency(item.price * item.quantity)})\n`;
         });
-        message += `\n*TOTAL: $${cartTotal.toFixed(2)}*`;
+        message += `\n*TOTAL: ${formatCurrency(cartTotal)}*`;
 
         return `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
     };
@@ -144,7 +184,10 @@ export const MenuProvider: React.FC<MenuProviderProps> = ({ children }) => {
                 updateQuantity,
                 cartTotal,
                 table,
-                generateWhatsAppLink
+                generateWhatsAppLink,
+                notification,
+                showNotification,
+                hideNotification
             }}
         >
             {children}

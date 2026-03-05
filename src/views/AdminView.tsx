@@ -29,6 +29,7 @@ import { useMenu } from '../context/MenuContext';
 import { Product } from '../types';
 import AdminForm from '../components/AdminForm';
 import QRGenerator from '../components/QRGenerator';
+import { formatCurrency } from '../utils/urlUtils';
 
 const AdminView: React.FC = () => {
     const { menuItems, toggleAvailability, deleteMenuItem } = useMenu();
@@ -123,7 +124,7 @@ const AdminView: React.FC = () => {
                                         </TableCell>
                                         <TableCell>
                                             <Typography fontWeight={700} color="primary.main">
-                                                ${item.price.toFixed(2)}
+                                                {formatCurrency(item.price)}
                                             </Typography>
                                         </TableCell>
                                         <TableCell align="center">
