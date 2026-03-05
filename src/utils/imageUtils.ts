@@ -16,5 +16,5 @@ export const validateImageURL = (url: string): boolean => {
 export const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
     const target = e.target as HTMLImageElement;
     target.onerror = null; // Prevent infinite loop
-    target.src = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=1000&auto=format&fit=crop';
+    target.src = 'https://via.placeholder.com/600x400/1a1a1a/D4AF37?text=Gourmet+QR';
 };

@@ -29,5 +29,5 @@ export const getTableFromURL = (): string => {
         return mesaParam;
     }
 
-    return 'Barra';
+    return 'Mesa General';
 };

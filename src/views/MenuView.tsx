@@ -24,13 +24,23 @@ const MenuView: React.FC = () => {
     const [selectedTab, setSelectedTab] = useState(0);
     const [isCartOpen, setIsCartOpen] = useState(false);
     const theme = useTheme();
+    const [cartPop, setCartPop] = useState(false);
 
-    const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
-        setSelectedTab(newValue);
-        const category = categories[newValue];
+    // Trigger pop animation when cart quantity changes
+    const totalItems = cart.reduce((a, b) => a + b.quantity, 0);
+    React.useEffect(() => {
+        if (totalItems > 0) {
+            setCartPop(true);
+            const timer = setTimeout(() => setCartPop(false), 300);
+            return () => clearTimeout(timer);
+        }
+    }, [totalItems]);
+
+    const handleCategoryClick = (category: string, index: number) => {
+        setSelectedTab(index);
         const element = document.getElementById(`category-${category.replace(/\s+/g, '-')}`);
         if (element) {
-            const headerOffset = 140;
+            const headerOffset = 100;
             const elementPosition = element.getBoundingClientRect().top;
             const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
 
@@ -67,38 +77,49 @@ const MenuView: React.FC = () => {
                 </Container>
             </Box>
 
-            {/* Sticky Category Tabs */}
+            {/* Sticky Category Chips */}
             <Box sx={{
                 position: 'sticky',
                 top: 0,
-                zIndex: 1000,
+                zindex: 1000,
                 bgcolor: 'rgba(10, 10, 10, 0.85)',
                 backdropFilter: 'blur(16px)',
                 borderBottom: '1px solid rgba(212, 175, 55, 0.2)',
-                py: 1
+                py: 2,
+                overflowX: 'auto',
+                display: 'flex',
+                gap: 1.5,
+                px: 2,
+                '&::-webkit-scrollbar': { display: 'none' },
+                msOverflowStyle: 'none',
+                scrollbarWidth: 'none',
             }}>
-                <Container maxWidth="lg">
-                    <Tabs
-                        value={selectedTab}
-                        onChange={handleTabChange}
-                        variant="scrollable"
-                        scrollButtons="auto"
+                {categories.map((category, index) => (
+                    <Box
+                        key={category}
+                        onClick={() => handleCategoryClick(category, index)}
                         sx={{
-                            '& .MuiTabs-indicator': { height: 3, borderRadius: '3px 3px 0 0' },
-                            '& .MuiTab-root': {
-                                fontSize: '0.9rem',
-                                fontWeight: 700,
-                                minWidth: 100,
-                                opacity: 0.7,
-                                '&.Mui-selected': { opacity: 1 }
+                            px: 3,
+                            py: 1,
+                            borderRadius: '25px',
+                            bgcolor: selectedTab === index ? 'primary.main' : 'rgba(255,255,255,0.05)',
+                            color: selectedTab === index ? 'black' : 'white',
+                            fontWeight: 800,
+                            fontSize: '0.85rem',
+                            cursor: 'pointer',
+                            whiteSpace: 'nowrap',
+                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                            border: '1px solid',
+                            borderColor: selectedTab === index ? 'primary.main' : 'rgba(212, 175, 55, 0.1)',
+                            '&:hover': {
+                                bgcolor: selectedTab === index ? 'primary.main' : 'rgba(212, 175, 55, 0.1)',
+                                transform: 'translateY(-2px)'
                             }
                         }}
                     >
-                        {categories.map((category) => (
-                            <Tab key={category} label={category.toUpperCase()} />
-                        ))}
-                    </Tabs>
-                </Container>
+                        {category.toUpperCase()}
+                    </Box>
+                ))}
             </Box>
 
             {/* Menu Items Grid */}
@@ -134,13 +155,24 @@ const MenuView: React.FC = () => {
                     bottom: 32,
                     right: 32,
                     width: 64,
-                    height: 64
+                    height: 64,
+                    animation: cartPop ? 'pop 0.3s ease-out' : 'none',
+                    zIndex: 1100
                 }}
             >
                 <Badge
-                    badgeContent={cart.reduce((a, b) => a + b.quantity, 0)}
+                    badgeContent={totalItems}
                     color="secondary"
                     overlap="circular"
+                    sx={{
+                        '& .MuiBadge-badge': {
+                            fontSize: '0.9rem',
+                            fontWeight: 900,
+                            minWidth: 24,
+                            height: 24,
+                            borderRadius: '12px'
+                        }
+                    }}
                 >
                     <CartIcon sx={{ fontSize: 32 }} />
                 </Badge>

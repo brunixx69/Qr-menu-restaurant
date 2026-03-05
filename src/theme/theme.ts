@@ -39,6 +39,11 @@ const theme = createTheme({
     components: {
         MuiCssBaseline: {
             styleOverrides: {
+                '@keyframes pop': {
+                    '0%': { transform: 'scale(1)' },
+                    '50%': { transform: 'scale(1.2)' },
+                    '100%': { transform: 'scale(1)' },
+                },
                 '@keyframes scaleUp': {
                     '0%': { transform: 'scale(1)' },
                     '50%': { transform: 'scale(1.15)' },

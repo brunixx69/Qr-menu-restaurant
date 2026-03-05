@@ -158,7 +158,7 @@ export const MenuProvider: React.FC<MenuProviderProps> = ({ children }) => {
 
     const generateWhatsAppLink = () => {
         const phoneNumber = "5491112223334";
-        let message = `*Nuevo Pedido - Mesa: ${table}*\n\n`;
+        let message = `*NUEVO PEDIDO - MESA: ${table.toUpperCase()}*\n\n`;
         cart.forEach(item => {
             message += `• ${item.quantity}x ${item.name} (${formatCurrency(item.price * item.quantity)})\n`;
         });
